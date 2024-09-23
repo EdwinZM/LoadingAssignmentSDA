@@ -4,6 +4,7 @@ from tkinter import ttk
 from Camera import *
 from Item import *
 from ConveyorBelt import *
+from Gripper import *
 import cv2
 
 
@@ -41,7 +42,11 @@ def main():
         for i in items:
             arm.get_position(i.position)
             arm.go_to_position()
-            # MAKE THE GRIPPER CLASS AND USE IT TO CLOSE THE GRIPPER
+            gripper.toggle()
+            arm.get_position(belt.position)
+            arm.go_to_position()
+            gripper.toggle()
+            arm.go_home()
 
 
 
@@ -56,6 +61,7 @@ def main():
     camera = Camera()
     item = Item()
     belt = ConveyorBelt()
+    gripper = Gripper(api, dtype)
 
 
 

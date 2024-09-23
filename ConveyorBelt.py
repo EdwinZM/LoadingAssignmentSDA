@@ -4,6 +4,7 @@ class ConveyorBelt():
     def __init__(self):
         self.velocity = None
         self.conveyorWidth =  None
+        self.position = None
 
     def get_position(self):
         pass

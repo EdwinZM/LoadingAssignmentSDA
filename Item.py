@@ -4,9 +4,6 @@ class Item():
     def __init__(self, color, position):
         self.color = color
         self.position = position
-
-    def get_ID(self):
-        return self.ID
     
     def get_Colour(self):
         return self.color

@@ -37,9 +37,9 @@ def main():
             green_pos = camera.coordinates[1]
             blue_pos = camera.coordinates[2]
 
-            red_item = Item("Red", red_pos)
-            green_item = Item("Green", green_pos)
-            blue_item = Item("Blue", blue_pos)
+            red_item = item("Red", red_pos)
+            green_item = item("Green", green_pos)
+            blue_item = item("Blue", blue_pos)
 
             items = [red_item, blue_item, green_item]
 

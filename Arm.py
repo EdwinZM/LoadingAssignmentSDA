@@ -8,15 +8,19 @@ class Arm():
         self.position = None
         self.port = list_ports.comports()[0].device
         self.device = Dobot(port=self.port)
-        self.home = self.device._get_pose()
-       
+        self.home = self.device.get_pose()
+        print(self.port)
+
+        
 
     def get_position(self, pos):
         self.position = pos
     
     def go_to_position(self):
         pos = self.position
-        self.device.move_to(pos[0], pos[1], None, None, wait=True)
+        self.device.move_to(pos[0], pos[1], 50, None, wait=True)
+        self.device.move_to(pos[0], pos[1], -50, None, wait=True)
     
     def go_home(self):
         self.device.move_to(self.home.x, self.home.y, self.home.z, self.home.r, wait=True)
+

@@ -1,9 +1,12 @@
+import Arm
 
 class Gripper():
 
-    def __init__(self, api, dtype):
-        self.api = api
-        self.dtype = dtype
+    arm = Arm()
+
+    def __init__(self):
+        self.port = Gripper.arm.port
+        self.device = Gripper.arm.device
         self.gripper_on = False
 
     def toggle(self):
@@ -12,5 +15,4 @@ class Gripper():
         else: 
             self.gripper_on == True
         
-        self.dType.SetEndEffectorSuctionCup(self.api, self.gripper_on, self.gripper_on, isQueued= 1)
-
+        self.device.suck(self.gripper_on)

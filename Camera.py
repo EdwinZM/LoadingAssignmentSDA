@@ -47,6 +47,9 @@ class Camera:
         # Apply Gaussian blur to reduce noise
         self.hsv_frame = cv2.GaussianBlur(self.hsv_frame, (5, 5), 0)
 
+        #yes
+        
+
         # Create color masks
         self.mask_green = cv2.inRange(self.hsv_frame, self.lower_green, self.upper_green)
         self.mask_red1 = cv2.inRange(self.hsv_frame, self.lower_red1, self.upper_red1)

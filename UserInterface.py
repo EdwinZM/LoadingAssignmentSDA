@@ -13,6 +13,12 @@ import pydobot
 
 def main():
 
+    arm = Arm()
+    camera = Camera()
+    item = Item()
+    belt = ConveyorBelt()
+    gripper = Gripper()
+
 
     states = ["Initialization", "ERROR", "Detecting Objects", "Reading User Inputs", "Moving Object", "Getting Item Position", "Getting Arm Position",
                 "Getting Conveyour Position", "Moving Arm", "Picking Item", "Dropping Item"]
@@ -26,11 +32,11 @@ def main():
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
 
-    machine.add_transition(main, "Initialization", "Reading User Inputs")
+    machine.add_transition(main, "Initialization", "Detecting Objects")
 
     def Load():
         try: 
-            machine.add_transition(Load, "Reading User Inputs", "Detecting Objects")
+            machine.add_transition(Load, "Detecting Objects", "Reading User Inputs")
             camera.take_image()
             camera.process_image()
             red_pos = camera.coordinates[0]
@@ -46,17 +52,43 @@ def main():
             def dummy_function():
                 pass
 
+            chosen_item: None
 
-            for i in items:
-                machine.add_transition(arm.get_position, "Detecting Objects", "Getting Item Position")
-                arm.get_position(i.position)
+            def choose_red():
+                nonlocal chosen_item
+                chosen_item = red_item
+
+            def choose_green():
+                nonlocal chosen_item
+                chosen_item = green_item
+            
+            def choose_blue():
+                nonlocal chosen_item
+                chosen_item = blue_item
+
+            
+           
+            for i in range(3):
+                match i:
+                    case 0:
+                        RedBtn = ttk.Button(mainframe, text='Red', command=choose_red).grid(column=2, row=1, sticky=W, padx=20, pady=10)
+                        GreenBtn = ttk.Button(mainframe, text='Green', command=choose_green).grid(column=2, row=2, sticky=EW, padx=20, pady=10)
+                        BlueBtn = ttk.Button(mainframe, text='Blue', command=choose_blue).grid(column=2, row=3, sticky=E, padx=20, pady=10)
+                        
+                    case 1:
+                        GreenBtn = ttk.Button(mainframe, text='Green', command=choose_green).grid(column=2, row=1, sticky=W, padx=20, pady=10)
+                        BlueBtn = ttk.Button(mainframe, text='Blue', command=choose_blue).grid(column=2, row=3, sticky=E, padx=20, pady=10)
+                    case 2:
+                        BlueBtn = ttk.Button(mainframe, text='Blue', command=choose_blue).grid(column=2, row=2, sticky=EW, padx=20, pady=10)
+
+                machine.add_transition(arm.get_position, "Reading User Inputs", "Getting Item Position")
+                arm.get_position(chosen_item.position)
                 machine.add_transition(arm.go_to_position, "Getting Item Position", "Moving Arm")
                 arm.go_to_position()
                 
                 machine.add_transition(gripper.toggle, "Moving Arm", "Picking Item")
                 gripper.toggle_gripper()
                 machine.add_transition(arm.get_position, "Picking Item", "Getting Conveyour Position")
-                arm.go_home()
                 arm.get_position(belt.position)
                 machine.add_transition(arm.go_to_position, "Getting Conveyour Position", "Moving Object")
                 arm.go_to_position()
@@ -64,7 +96,7 @@ def main():
                 gripper.toggle_gripper()
                 machine.add_transition(arm.go_home, "Dropping Item", "Moving Arm")
                 arm.go_home()
-                machine.add_transition(dummy_function, "Moving Arm", "Detecting Objects")
+                machine.add_transition(dummy_function, "Moving Arm", "Reading User Inputs")
                 dummy_function()
                 
         except NameError:
@@ -79,11 +111,7 @@ def main():
     unloadBtn = ttk.Button(mainframe, text='Unload', command=Unload).grid(column=2, row=1, sticky=E, padx=20, pady=10)
 
 
-    arm = Arm()
-    camera = Camera()
-    item = Item()
-    belt = ConveyorBelt()
-    gripper = Gripper()
+
 
 
 

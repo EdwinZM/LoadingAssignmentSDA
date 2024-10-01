@@ -10,6 +10,7 @@ class Arm():
         self.device = Dobot(port=self.port)
         self.home = self.device.get_pose()
         print(self.port)
+        print(list_ports.comports())
 
         
 

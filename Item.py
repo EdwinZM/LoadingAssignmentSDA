@@ -1,20 +1,18 @@
-
-class Item():
-    
-    def __init__(self, color, position):
+class Item:
+    def __init__(self, color, shape, dimensions, position):
         self.color = color
+        self.shape = shape
+        self.dimensions = dimensions
         self.position = position
-        self.shape = None
-        self.dimensions = []
     
     def get_Colour(self):
         return self.color
-    
-    def get_Shape(self):
+
+    def get_shape(self):
         return self.shape
-    
-    def get_Dimensions(self):
+
+    def get_dimensions(self):
         return self.dimensions
-    
-    def get_Position(self):
+
+    def get_position(self):
         return self.position

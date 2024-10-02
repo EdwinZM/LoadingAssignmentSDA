@@ -1,6 +1,5 @@
 class ConveyorBelt:
-    def __init__(self, hardware_api, initial_position=0, conveyor_width=50):
-        self.hardware_api = hardware_api  
+    def __init__(self, initial_position=0, conveyor_width=50): 
         self.velocity = 0  
         self.position = initial_position
         self.conveyor_width = conveyor_width  

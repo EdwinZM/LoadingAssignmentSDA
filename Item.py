@@ -8,11 +8,11 @@ class Item:
     def get_Colour(self):
         return self.color
 
-    def get_shape(self):
+    def get_Shape(self):
         return self.shape
 
-    def get_dimensions(self):
+    def get_Dimensions(self):
         return self.dimensions
 
-    def get_position(self):
+    def get_Position(self):
         return self.position

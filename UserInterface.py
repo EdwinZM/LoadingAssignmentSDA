@@ -9,114 +9,117 @@ import cv2
 from serial.tools import list_ports
 import pydobot
 
+class UserInterface:
+    def __init__(self):
+        self.chosen_item = None
+        self.red_item = None
+        self.green_item = None
+        self.blue_item = None
 
+        self.arm = Arm()
+        self.camera = Camera()
+        self.item = Item()
+        self.belt = ConveyorBelt()
+        self.gripper = Gripper()
+
+        self.states = ["Initialization", "ERROR", "Detecting Objects", "Reading User Inputs", "Getting Item Position", 
+                       "Getting Arm Position", "Getting Conveyor Position", "Moving Arm", "Picking Item", "Dropping Item", "Moving ERROR"]
+
+        self.machine = Machine(model=self.main, states=self.states, initial="Initialization", on_exception="ERROR")
+
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.root = Tk()
+        self.root.title("Dobot UI")
+
+        self.mainframe = ttk.Frame(self.root, padding='3 3 12 12')
+        self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+
+        # Buttons
+        load_btn = ttk.Button(self.mainframe, text='Load', command=self.Load)
+        load_btn.grid(column=1, row=1, sticky=W, padx=20, pady=10)
+
+        unload_btn = ttk.Button(self.mainframe, text='Unload', command=self.Unload)
+        unload_btn.grid(column=2, row=1, sticky=E, padx=20, pady=10)
+
+        self.root.mainloop()
+
+    def choose_red(self):
+        self.chosen_item = self.red_item
+
+    def choose_green(self):
+        self.chosen_item = self.green_item
+
+    def choose_blue(self):
+        self.chosen_item = self.blue_item
+
+    def Load(self):
+        try:
+            # Transitions following the state diagram
+            self.machine.add_transition(self.Load, "Initialization", "Detecting Objects")
+            self.camera.take_image()
+            self.camera.process_image()
+
+            red_pos = self.camera.coordinates[0]
+            green_pos = self.camera.coordinates[1]
+            blue_pos = self.camera.coordinates[2]
+
+            self.red_item = self.item("Red", red_pos)
+            self.green_item = self.item("Green", green_pos)
+            self.blue_item = self.item("Blue", blue_pos)
+
+            items = [self.red_item, self.blue_item, self.green_item]
+
+            # Buttons for choosing items
+            red_btn = ttk.Button(self.mainframe, text='Red', command=self.choose_red)
+            red_btn.grid(column=2, row=1, sticky=W, padx=20, pady=10)
+
+            green_btn = ttk.Button(self.mainframe, text='Green', command=self.choose_green)
+            green_btn.grid(column=2, row=2, sticky=EW, padx=20, pady=10)
+
+            blue_btn = ttk.Button(self.mainframe, text='Blue', command=self.choose_blue)
+            blue_btn.grid(column=2, row=3, sticky=E, padx=20, pady=10)
+
+            # Following transitions from the diagram
+            self.machine.add_transition(self.arm.get_position, "Reading User Inputs", "Getting Item Position")
+            self.arm.get_position(self.chosen_item.position)
+
+            self.machine.add_transition(self.arm.get_position, "Getting Item Position", "Getting Arm Position")
+            self.arm.get_position()
+
+            self.machine.add_transition(self.arm.get_position, "Getting Arm Position", "Getting Conveyor Position")
+            self.arm.get_position(self.belt.position)
+
+            self.machine.add_transition(self.arm.go_to_position, "Getting Conveyor Position", "Moving Arm")
+            self.arm.go_to_position()
+
+            if self.arm.position == self.chosen_item.position:
+                self.machine.add_transition(self.gripper.toggle_gripper, "Moving Arm", "Picking Item")
+                self.gripper.toggle_gripper(True)
+            elif self.arm.position == self.belt.position:
+                self.machine.add_transition(self.gripper.toggle_gripper, "Moving Arm", "Dropping Item")
+                self.gripper.toggle_gripper(False)
+
+            self.machine.add_transition(self.arm.go_home, "Picking Item", "Moving Arm")
+            self.arm.go_home()
+
+            self.machine.add_transition(self.dummy_function, "Moving Arm", "Reading User Inputs")
+            self.dummy_function()
+
+        except NameError as e:
+            print(f"Error: {e}")
+
+    def dummy_function(self):
+        pass
+
+    def Unload(self):
+        print('Unloading')
 
 def main():
-
-    arm = Arm()
-    camera = Camera()
-    item = Item()
-    belt = ConveyorBelt()
-    gripper = Gripper()
-
-
-    states = ["Initialization", "ERROR", "Detecting Objects", "Reading User Inputs", "Moving Object", "Getting Item Position", "Getting Arm Position",
-                "Getting Conveyour Position", "Moving Arm", "Picking Item", "Dropping Item"]
-    machine = Machine(model=main, states=Arm.states, initial="Initialization", on_exception="Error")
-
-    root = Tk()
-    root.title("Dobot UI")
-
-    mainframe = ttk.Frame(root, padding='3 3 12 12')
-    mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-    root.columnconfigure(0, weight=1)
-    root.rowconfigure(0, weight=1)
-
-    machine.add_transition(main, "Initialization", "Detecting Objects")
-
-    def Load():
-        try: 
-            machine.add_transition(Load, "Detecting Objects", "Reading User Inputs")
-            camera.take_image()
-            camera.process_image()
-            red_pos = camera.coordinates[0]
-            green_pos = camera.coordinates[1]
-            blue_pos = camera.coordinates[2]
-
-            red_item = item("Red", red_pos)
-            green_item = item("Green", green_pos)
-            blue_item = item("Blue", blue_pos)
-
-            items = [red_item, blue_item, green_item]
-
-            def dummy_function():
-                pass
-
-            chosen_item: None
-
-            def choose_red():
-                nonlocal chosen_item
-                chosen_item = red_item
-
-            def choose_green():
-                nonlocal chosen_item
-                chosen_item = green_item
-            
-            def choose_blue():
-                nonlocal chosen_item
-                chosen_item = blue_item
-
-            
-           
-            for i in range(3):
-                match i:
-                    case 0:
-                        RedBtn = ttk.Button(mainframe, text='Red', command=choose_red).grid(column=2, row=1, sticky=W, padx=20, pady=10)
-                        GreenBtn = ttk.Button(mainframe, text='Green', command=choose_green).grid(column=2, row=2, sticky=EW, padx=20, pady=10)
-                        BlueBtn = ttk.Button(mainframe, text='Blue', command=choose_blue).grid(column=2, row=3, sticky=E, padx=20, pady=10)
-                        
-                    case 1:
-                        GreenBtn = ttk.Button(mainframe, text='Green', command=choose_green).grid(column=2, row=1, sticky=W, padx=20, pady=10)
-                        BlueBtn = ttk.Button(mainframe, text='Blue', command=choose_blue).grid(column=2, row=3, sticky=E, padx=20, pady=10)
-                    case 2:
-                        BlueBtn = ttk.Button(mainframe, text='Blue', command=choose_blue).grid(column=2, row=2, sticky=EW, padx=20, pady=10)
-
-                machine.add_transition(arm.get_position, "Reading User Inputs", "Getting Item Position")
-                arm.get_position(chosen_item.position)
-                machine.add_transition(arm.go_to_position, "Getting Item Position", "Moving Arm")
-                arm.go_to_position()
-                
-                machine.add_transition(gripper.toggle, "Moving Arm", "Picking Item")
-                gripper.toggle_gripper()
-                machine.add_transition(arm.get_position, "Picking Item", "Getting Conveyour Position")
-                arm.get_position(belt.position)
-                machine.add_transition(arm.go_to_position, "Getting Conveyour Position", "Moving Object")
-                arm.go_to_position()
-                machine.add_transition(gripper.toggle, "Moving Object", "Dropping Item")
-                gripper.toggle_gripper()
-                machine.add_transition(arm.go_home, "Dropping Item", "Moving Arm")
-                arm.go_home()
-                machine.add_transition(dummy_function, "Moving Arm", "Reading User Inputs")
-                dummy_function()
-                
-        except NameError:
-            print(NameError)
-
-
-
-    def Unload():
-        print('unloading')
-
-    loadBtn = ttk.Button(mainframe, text='Load', command=Load).grid(column=1, row=1, sticky=W, padx=20, pady=10)
-    unloadBtn = ttk.Button(mainframe, text='Unload', command=Unload).grid(column=2, row=1, sticky=E, padx=20, pady=10)
-
-
-
-
-
-
-    root.mainloop()
-
+    ui = UserInterface()
 
 if __name__ == '__main__':
     main()

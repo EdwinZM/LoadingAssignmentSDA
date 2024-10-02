@@ -48,7 +48,7 @@ class Camera:
         self.hsv_frame = cv2.GaussianBlur(self.hsv_frame, (5, 5), 0)
 
         #yes
-        
+
 
         # Create color masks
         self.mask_green = cv2.inRange(self.hsv_frame, self.lower_green, self.upper_green)
@@ -89,6 +89,8 @@ class Camera:
         # Wait for 'q' to exit
         if cv2.waitKey(1) & 0xFF == ord('q'):
             return
+        self.vid.release()
+        cv2.destroyAllWindows()
 
     def _process_contours(self, contours, color_name, color_rgb, width, height):
         """Helper method to process contours and display coordinates."""
@@ -114,3 +116,10 @@ class Camera:
 
                     # Print coordinates to the console
                     print(f"Color: {color_name} | Dobot Coordinates: ({dobot_x:.2f}, {dobot_y:.2f}) mm")
+
+camera = Camera()
+camera.take_image()
+camera.process_image()
+
+
+            

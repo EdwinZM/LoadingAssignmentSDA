@@ -4,10 +4,10 @@ import numpy as np
 class Camera:
     def __init__(self):
         # Dummy Dobot workspace coordinates in mm (replace with actual Dobot measurements)
-        self.dobot_x_min = -400  # Dobot's top-left corner in mm
-        self.dobot_y_min = -400
-        self.dobot_x_max = 500   # Dobot's bottom-right corner in mm
-        self.dobot_y_max = 500
+        self.dobot_x_min = 0 # Dobot's top-left corner in mm
+        self.dobot_y_min = 0
+        self.dobot_x_max = 470   # Dobot's bottom-right corner in mm CAMERA RESOLUTION IS 800x600
+        self.dobot_y_max = 363
 
         self.coordinates = []
 
@@ -21,7 +21,7 @@ class Camera:
         self.upper_red1 = np.array([10, 255, 255])
         self.lower_red2 = np.array([170, 100, 50])
         self.upper_red2 = np.array([180, 255, 255])
-        self.lower_blue = np.array([90, 50, 50])
+        self.lower_blue = np.array([102, 50, 50])
         self.upper_blue = np.array([130, 255, 255])
 
         # Minimum pixel count threshold for valid color detection

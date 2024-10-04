@@ -10,7 +10,7 @@ class Arm():
     def __init__(self):
         self.position = None
         #self.port = list_ports.comports()[0].device
-        self.homeX, self.homeY, self.homeZ = 170, 50, 0
+        self.homeX, self.homeY, self.homeZ = 177, 121, 0
         self.device = dbt.DoBotArm("COM6", self.homeX, self.homeY, self.homeZ, home= False)
     
     def home(self):

@@ -9,6 +9,8 @@ class Camera:
         self.dobot_x_max = 500   # Dobot's bottom-right corner in mm
         self.dobot_y_max = 500
 
+        self.coordinates = []
+
         # Scaling factor to zoom out (adjust if needed)
         self.scaling_factor = 0.75
 
@@ -116,6 +118,8 @@ class Camera:
 
                     # Print coordinates to the console
                     print(f"Color: {color_name} | Dobot Coordinates: ({dobot_x:.2f}, {dobot_y:.2f}) mm")
+                    self.coordinates.append([dobot_x, dobot_y])
+                    print(self.coordinates)
 
 camera = Camera()
 camera.take_image()

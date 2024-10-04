@@ -91,13 +91,7 @@ class UserInterface:
                 self.machine.add_transition(self.arm.get_position, "Reading User Inputs", "Getting Item Position")
                 self.arm.get_position(self.chosen_item.position)
 
-                self.machine.add_transition(self.arm.get_position, "Getting Item Position", "Getting Arm Position")
-                self.arm.home()
-
-                self.machine.add_transition(self.arm.home(), "Getting Arm Position", "Getting Conveyor Position")
-                self.belt.get_position(self.chosen_item.position[0])
-
-                self.machine.add_transition(self.arm.go_to_position, "Getting Conveyor Position", "Moving Arm")
+                self.machine.add_transition(self.arm.home, "Getting Item Position", "Moving Arm")
                 self.arm.go_to_position()
 
                 if self.arm.position == self.chosen_item.position:
@@ -106,11 +100,20 @@ class UserInterface:
                     self.gripper.toggle_gripper(True)
                     self.arm.device.moveArmXYZ(self.arm.position[0], self.arm.position[1], 0)
 
-                elif self.arm.position == self.belt.position:
+                self.machine.add_transition(self.belt.get_position, "Picking Item", "Getting Conveyor Position")
+                self.belt.get_position(self.chosen_item.position[0])
+                self.arm.get_position(self.belt.position)
+
+                self.machine.add_transition(self.arm.go_to_position, "Getting Conveyor Position", "Moving Arm")
+                self.arm.go_to_position()
+
+                
+
+                if self.arm.position == self.belt.position:
                     self.machine.add_transition(self.gripper.toggle_gripper, "Moving Arm", "Dropping Item")
                     self.gripper.toggle_gripper(False)
 
-                self.machine.add_transition(self.arm.device.rehome, "Picking Item", "Moving Arm")
+                self.machine.add_transition(self.arm.device.rehome, "Dropping Item", "Moving Arm")
                 self.arm.device.rehome(self.arm.position[0], self.arm.position[1], 0, True)
 
                 self.machine.add_transition(self.dummy_function, "Moving Arm", "Reading User Inputs")

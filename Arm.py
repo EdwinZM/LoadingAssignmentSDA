@@ -14,9 +14,7 @@ class Arm():
         self.device = dbt.DoBotArm("COM6", self.homeX, self.homeY, self.homeZ, home= False)
     
     def home(self):
-        self.device.moveArmXYZ(x= 170, y= 100, z= 0)
-       
-        
+        return self.device.getPosition()
 
     def get_position(self, pos):
         self.position = pos

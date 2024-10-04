@@ -4,9 +4,9 @@ class ConveyorBelt:
         self.position = initial_position
         self.conveyor_width = conveyor_width  
 
-    def get_position(self):
+    def get_position(self, itempos):
         # Call to the hardware API to get the real conveyor position
-        self.position = self.hardware_api.get_conveyor_position()
+        self.position = 280 - itempos
         print(f"Current conveyor position: {self.position}")
         return self.position
 

@@ -65,9 +65,9 @@ class UserInterface:
             self.machine.add_transition(self.camera.process_image, "Detecting Objects", "Reading User Inputs")
             self.camera.process_image()
 
-            red_pos = self.camera.coordinates[0]
-            green_pos = self.camera.coordinates[1]
-            blue_pos = self.camera.coordinates[2]
+            red_pos = [self.camera.coordinates[0][0] - self.arm.homeX, self.camera.coordinates[0][1] - self.arm.homeY]
+            green_pos = [self.camera.coordinates[1][0] - self.arm.homeX, self.camera.coordinates[1][1] - self.arm.homeY]
+            blue_pos = [self.camera.coordinates[2][0] - self.arm.homeX, self.camera.coordinates[2][1] - self.arm.homeY]
 
             self.red_item = self.item(color="Red", position=red_pos)
             self.green_item = self.item(color="Green", position=green_pos)

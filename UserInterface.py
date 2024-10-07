@@ -91,7 +91,7 @@ class UserInterface:
                 self.machine.add_transition(self.arm.get_position, "Reading User Inputs", "Getting Item Position")
                 self.arm.get_position(self.chosen_item.position)
 
-                self.machine.add_transition(self.arm.home, "Getting Item Position", "Moving Arm")
+                self.machine.add_transition(self.arm.go_to_position, "Getting Item Position", "Moving Arm")
                 self.arm.go_to_position()
 
                 if self.arm.position == self.chosen_item.position:
@@ -121,6 +121,7 @@ class UserInterface:
 
         except NameError as e:
             print(f"Error: {e}")
+
 
     def dummy_function(self):
         pass

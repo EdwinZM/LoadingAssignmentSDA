@@ -4,7 +4,6 @@ import DoBotArm as dbt
 import threading
 import time
 
-
 class Arm():
     
     def __init__(self):
@@ -22,5 +21,6 @@ class Arm():
     def go_to_position(self):
         pos = self.position
         self.device.moveArmXYZ(x=pos[0], y=pos[1], z=pos[2])
-    
-   
+
+arm = Arm()
+arm

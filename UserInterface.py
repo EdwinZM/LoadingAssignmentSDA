@@ -24,7 +24,7 @@ class UserInterface:
         self.gripper = Gripper()
 
         self.states = ["Initialization", "ERROR", "Detecting Objects", "Reading User Inputs", "Getting Item Position", 
-                       "Getting Arm Position", "Getting Conveyor Position", "Moving Arm", "Picking Item", "Dropping Item", "Moving ERROR"]
+                       "Getting Arm Position", "Getting Conveyor Position", "Moving Arm", "Picking Item", "Dropping Item", "Moving ERROR", "Getting Unloading Position"]
 
         self.machine = Machine(model=self.main, states=self.states, initial="Initialization", on_exception="ERROR")
 
@@ -130,7 +130,74 @@ class UserInterface:
         pass
 
     def Unload(self):
-        print('Unloading')
+        try:
+            # Transitions following the state diagram
+            self.machine.add_transition(self.Load, "Initialization", "Detecting Objects")
+            self.camera.take_image()
+
+            self.machine.add_transition(self.camera.process_image, "Detecting Objects", "Reading User Inputs")
+            self.camera.process_image()
+
+            red_pos =  self.camera.coordinates[0] # [self.camera.coordinates[0][0] - self.arm.homeX, self.camera.coordinates[0][1] - self.arm.homeY]
+            green_pos = self.camera.coordinates[1] # [self.camera.coordinates[1][0] - self.arm.homeX, self.camera.coordinates[1][1] - self.arm.homeY]
+            blue_pos = self.camera.cooridnates[2] # [self.camera.coordinates[2][0] - self.arm.homeX, self.camera.coordinates[2][1] - self.arm.homeY]
+
+            self.red_item = self.item(color="Red", position=red_pos)
+            self.green_item = self.item(color="Green", position=green_pos)
+            self.blue_item = self.item(color="Blue", position=blue_pos)
+
+            items = [self.red_item, self.blue_item, self.green_item]
+
+            self.arm.get_position(self.arm.home())
+
+
+            for i in range(3):
+                # Buttons for choosing items
+                red_btn = ttk.Button(self.mainframe, text='Red', command=self.choose_red)
+                red_btn.grid(column=2, row=1, sticky=W, padx=20, pady=10)
+
+                green_btn = ttk.Button(self.mainframe, text='Green', command=self.choose_green)
+                green_btn.grid(column=2, row=2, sticky=EW, padx=20, pady=10)
+
+                blue_btn = ttk.Button(self.mainframe, text='Blue', command=self.choose_blue)
+                blue_btn.grid(column=2, row=3, sticky=E, padx=20, pady=10)
+
+
+                # Following transitions from the diagram
+                self.machine.add_transition(self.arm.get_position, "Reading User Inputs", "Getting Item Position")
+                self.arm.get_position(self.chosen_item.position)
+
+                self.machine.add_transition(self.arm.go_to_position, "Getting Item Position", "Moving Arm")
+                self.arm.go_to_position()
+
+                if self.arm.position == self.chosen_item.position:
+                    self.arm.device.moveArmXYZ(self.arm.position[0], self.arm.position[1], -10)
+                    self.machine.add_transition(self.gripper.toggle_gripper, "Moving Arm", "Picking Item")
+                    self.gripper.toggle_gripper(True)
+                    self.arm.device.moveArmXYZ(self.arm.position[0], self.arm.position[1], 0)
+
+                self.machine.add_transition(self.belt.get_position, "Picking Item", "Getting Unloading Position")
+
+                self.arm.get_position(200, 200)
+
+                self.machine.add_transition(self.arm.go_to_position, "Getting Unloading Position", "Moving Arm")
+                self.arm.go_to_position()
+
+                
+
+                if self.arm.position == self.belt.position:
+                    self.machine.add_transition(self.gripper.toggle_gripper, "Moving Arm", "Dropping Item")
+                    self.gripper.toggle_gripper(False)
+
+                self.machine.add_transition(self.arm.device.rehome, "Dropping Item", "Moving Arm")
+                self.arm.go_to_position(self.arm.homeX, self.arm.homeY, self.arm.homeZ, True)
+
+                self.machine.add_transition(self.dummy_function, "Moving Arm", "Reading User Inputs")
+                self.dummy_function()
+
+        except NameError as e:
+            print(f"Error: {e}")
+
 
 def main():
     ui = UserInterface()

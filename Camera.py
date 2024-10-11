@@ -31,7 +31,7 @@ class Camera:
         self.kernel = np.ones((3, 3), np.uint8)
 
         # Initialize video capture
-        self.vid = cv2.VideoCapture(0)
+        self.vid = cv2.VideoCapture(1)
 
     def take_image(self):
         """Capture an image from the camera."""
@@ -121,9 +121,6 @@ class Camera:
                     self.coordinates.append([dobot_x, dobot_y])
                     print(self.coordinates)
 
-camera = Camera()
-camera.take_image()
-camera.process_image()
 
 
             

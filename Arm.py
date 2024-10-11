@@ -9,7 +9,7 @@ class Arm():
     def __init__(self):
         self.position = None
         #self.port = list_ports.comports()[0].device
-        self.homeX, self.homeY, self.homeZ = 177, 121, 0
+        self.homeX, self.homeY, self.homeZ = self.position[0], self.position[1], self.position[2]
         self.device = dbt.DoBotArm("COM6", self.homeX, self.homeY, self.homeZ, home= False)
     
     def home(self):
@@ -21,6 +21,3 @@ class Arm():
     def go_to_position(self):
         pos = self.position
         self.device.moveArmXYZ(x=pos[0], y=pos[1], z=pos[2])
-
-arm = Arm()
-arm

@@ -7,17 +7,22 @@ import time
 class Arm():
     
     def __init__(self):
-        self.position = None
-        #self.port = list_ports.comports()[0].device
-        self.homeX, self.homeY, self.homeZ = self.position[0], self.position[1], self.position[2]
-        self.device = dbt.DoBotArm("COM6", self.homeX, self.homeY, self.homeZ, home= False)
-    
+        self.position = None  # Leave it as None, dynamically assigned later
+        self.device = dbt.DoBotArm("COM6", 225, 0, -43, home=False)  # Use defaults
+
     def home(self):
-        return self.device.getPosition()
+        """Retrieve the current position of the arm"""
+        self.position = self.device.getPosition()
+        return self.position
 
     def get_position(self, pos):
+        """Set the arm's position"""
         self.position = pos
     
     def go_to_position(self):
-        pos = self.position
-        self.device.moveArmXYZ(x=pos[0], y=pos[1], z=pos[2])
+        """Move the arm to the current position"""
+        if self.position is not None:
+            pos = self.position
+            self.device.moveArmXYZ(x=pos[0], y=pos[1], z=pos[2])
+        else:
+            print("Error: Position not set")

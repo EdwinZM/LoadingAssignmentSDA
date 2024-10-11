@@ -3,10 +3,10 @@ import numpy as np
 
 class Camera:
     def __init__(self):
-        # Dummy Dobot workspace coordinates in mm (replace with actual Dobot measurements)
-        self.dobot_x_min = 0 # Dobot's top-left corner in mm
+        # Dobot workspace coordinates in mm (replace with actual Dobot measurements)
+        self.dobot_x_min = 0
         self.dobot_y_min = 0
-        self.dobot_x_max = 470   # Dobot's bottom-right corner in mm CAMERA RESOLUTION IS 800x600
+        self.dobot_x_max = 470
         self.dobot_y_max = 363
 
         self.coordinates = []
@@ -24,10 +24,7 @@ class Camera:
         self.lower_blue = np.array([102, 50, 50])
         self.upper_blue = np.array([130, 255, 255])
 
-        # Minimum pixel count threshold for valid color detection
         self.min_pixels_threshold = 500
-
-        # Erosion and dilation kernel
         self.kernel = np.ones((3, 3), np.uint8)
 
         # Initialize video capture
@@ -48,9 +45,6 @@ class Camera:
 
         # Apply Gaussian blur to reduce noise
         self.hsv_frame = cv2.GaussianBlur(self.hsv_frame, (5, 5), 0)
-
-        #yes
-
 
         # Create color masks
         self.mask_green = cv2.inRange(self.hsv_frame, self.lower_green, self.upper_green)
@@ -85,15 +79,6 @@ class Camera:
         self._process_contours(contours_red, "Red", (0, 0, 255), width, height)
         self._process_contours(contours_blue, "Blue", (255, 0, 0), width, height)
 
-        # Show the frame
-        cv2.imshow("frame", self.frame)
-
-        # Wait for 'q' to exit
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            return
-        self.vid.release()
-        cv2.destroyAllWindows()
-
     def _process_contours(self, contours, color_name, color_rgb, width, height):
         """Helper method to process contours and display coordinates."""
         if contours:
@@ -111,16 +96,14 @@ class Camera:
                     dobot_x = self.dobot_x_min + (cX / width) * (self.dobot_x_max - self.dobot_x_min)
                     dobot_y = self.dobot_y_min + (cY / height) * (self.dobot_y_max - self.dobot_y_min)
 
+                    # Apply the offset
+                    dobot_x += self.x_offset
+                    dobot_y += self.y_offset
+
                     # Display the color and Dobot coordinates
                     font = cv2.FONT_HERSHEY_SIMPLEX
                     cv2.putText(self.frame, f"{color_name} ({dobot_x:.2f}, {dobot_y:.2f} mm)", (cX + 10, cY),
                                 font, 0.5, color_rgb, 1, cv2.LINE_AA)
 
-                    # Print coordinates to the console
-                    print(f"Color: {color_name} | Dobot Coordinates: ({dobot_x:.2f}, {dobot_y:.2f}) mm")
+                    # Append coordinates
                     self.coordinates.append([dobot_x, dobot_y])
-                    print(self.coordinates)
-
-
-
-            

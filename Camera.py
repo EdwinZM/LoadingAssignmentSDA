@@ -106,4 +106,5 @@ class Camera:
                                 font, 0.5, color_rgb, 1, cv2.LINE_AA)
 
                     # Append coordinates
+                    print([dobot_x, dobot_y])
                     self.coordinates.append([dobot_x, dobot_y])

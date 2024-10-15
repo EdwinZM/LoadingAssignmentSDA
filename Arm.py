@@ -4,25 +4,30 @@ import DoBotArm as dbt
 import threading
 import time
 
-class Arm():
+class Arm:
     
     def __init__(self):
-        self.position = None  # Leave it as None, dynamically assigned later
-        self.device = dbt.DoBotArm("COM6", 225, 0, -43, home=False)  # Use defaults
+        # Set default position to None initially
+        self.position = None
+        # Initialize the Dobot Arm device
+        self.device = dbt.DoBotArm("COM6", 225, 0, -43, home=False)
 
     def home(self):
-        """Retrieve the current position of the arm"""
-        self.position = self.device.getPosition()
+        # Ensure device has been initialized before getting position
+        if self.device is not None:
+            self.position = self.device.getPosition()
+        else:
+            print("Error: Device not initialized.")
         return self.position
 
     def get_position(self, pos):
-        """Set the arm's position"""
+        # Manually set the position if known
         self.position = pos
     
     def go_to_position(self):
-        """Move the arm to the current position"""
+        # Move to the last known position, only if it's set
         if self.position is not None:
             pos = self.position
             self.device.moveArmXYZ(x=pos[0], y=pos[1], z=pos[2])
         else:
-            print("Error: Position not set")
+            print("Error: Position not set.")

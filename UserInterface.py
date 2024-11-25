@@ -55,16 +55,19 @@ class UserInterface:
         try:
             print("loading")
             # Transitions following the state diagram
-            self.machine.add_transition(self.camera.take_image, "Detecting Objects", "Reading User Inputs")
+            
             self.camera.take_image()
             self.camera.process_image()
+            self.machine.add_transition("self.camera.take_image", "Detecting Objects", "Reading User Inputs")
 
             self.pos = self.camera.coordinates
 
-            self.machine.add_transition(self.arm.get_position, "Reading User Inputs", "Getting Item Position")
             self.arm.get_position(self.pos)
-            self.machine.add_transition(self.arm.go_to_position, "Getting Item Position", "Moving Arm")
-            self.arm.go_to_position()
+            self.machine.add_transition("self.arm.get_position", "Reading User Inputs", "Getting Item Position")
+            
+            self.arm.go_to_position()   
+            self.machine.add_transition("self.arm.go_to_position", "Getting Item Position", "Moving Arm")
+            
 
             # red_pos =  self.camera.coordinates[0] # [self.camera.coordinates[0][0] - self.arm.homeX, self.camera.coordinates[0][1] - self.arm.homeY]
             # green_pos = self.camera.coordinates[1] # [self.camera.coordinates[1][0] - self.arm.homeX, self.camera.coordinates[1][1] - self.arm.homeY]
@@ -98,11 +101,11 @@ class UserInterface:
             #     self.machine.add_transition(self.arm.go_to_position, "Getting Item Position", "Moving Arm")
             #     self.arm.go_to_position()
 
-            if self.arm.position == self.pos:
-                self.arm.device.moveArmXYZ(self.arm.position[0], self.arm.position[1], -10)
-                self.machine.add_transition(self.arm.device.toggleSuction, "Moving Arm", "Picking Item")
-                self.arm.device.toggleSuction()
-                self.arm.device.moveArmXYZ(self.arm.position[0], self.arm.position[1], 0)
+            # if self.arm.position == self.pos:
+            #     self.arm.device.moveArmXYZ(self.arm.position[0], self.arm.position[1], -10)
+            #     self.machine.add_transition(self.arm.device.toggleSuction, "Moving Arm", "Picking Item")
+            #     self.arm.device.toggleSuction()
+            #     self.arm.device.moveArmXYZ(self.arm.position[0], self.arm.position[1], 0)
 
             #     self.machine.add_transition(self.belt.get_position, "Picking Item", "Getting Conveyor Position")
             #     self.belt.get_position(self.chosen_item.position[0])

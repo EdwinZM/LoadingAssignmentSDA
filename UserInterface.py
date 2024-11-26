@@ -22,7 +22,7 @@ class UserInterface:
         self.camera = Camera()
         # self.item = Item()
         self.belt = ConveyorBelt()
-       # self.gripper = Gripper()
+        self.gripper = Gripper(self.arm)
 
         self.states = ["Initialization", "ERROR", "Detecting Objects", "Reading User Inputs", "Getting Item Position", 
                        "Getting Arm Position", "Getting Conveyor Position", "Moving Arm", "Picking Item", "Dropping Item", "Moving ERROR", "Getting Unloading Position"]
@@ -48,7 +48,7 @@ class UserInterface:
 
         self.root.mainloop()
 
-        self.machine.add_transition(self.Load, "Initialization", "Detecting Objects")
+        self.machine.add_transition("self.Load", "Initialization", "Detecting Objects")
     
     def Load(self):
         
@@ -67,6 +67,26 @@ class UserInterface:
             
             self.arm.go_to_position()   
             self.machine.add_transition("self.arm.go_to_position", "Getting Item Position", "Moving Arm")
+
+            self.machine.add_transition("self.arm.device.toggleSuction", "Moving Arm", "Picking Item")
+            self.arm.device.toggleSuction()
+            self.arm.home()
+
+            self.machine.add_transition("self.belt.get_position", "Picking Item", "Getting Conveyor Position")
+            self.belt.get_position([182,249])
+            self.arm.get_position(self.belt.position)
+
+            self.machine.add_transition("self.arm.go_to_position", "Getting Conveyor Position", "Moving Arm")
+            self.arm.go_to_position()
+
+            self.machine.add_transition("self.arm.device.toggleSuction", "Moving Arm", "Dropping Item")
+            self.arm.device.toggleSuction()
+
+            #     self.machine.add_transition(self.arm.device.rehome, "Dropping Item", "Moving Arm")
+            #     self.arm.go_to_position(self.arm.homeX, self.arm.homeY, self.arm.homeZ, True)
+
+            self.machine.add_transition("self.dummy_function", "Moving Arm", "Reading User Inputs")
+            self.dummy_function()
             
 
             # red_pos =  self.camera.coordinates[0] # [self.camera.coordinates[0][0] - self.arm.homeX, self.camera.coordinates[0][1] - self.arm.homeY]

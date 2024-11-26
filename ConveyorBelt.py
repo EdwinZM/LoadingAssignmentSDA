@@ -6,7 +6,7 @@ class ConveyorBelt:
 
     def get_position(self, itempos):
         # Call to the hardware API to get the real conveyor position
-        self.position = 280 - itempos
+        self.position = itempos
         print(f"Current conveyor position: {self.position}")
         return self.position
 

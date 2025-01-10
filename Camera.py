@@ -34,7 +34,7 @@ class Camera:
         self.object_data = []  # Format: [(color, dob_x, dob_y, center_x, center_y), ...]
 
         # Initialize the camera
-        self.vid = cv2.VideoCapture(1)
+        self.vid = cv2.VideoCapture(0)
 
         # Flag to indicate when to exit
         self.should_exit = False

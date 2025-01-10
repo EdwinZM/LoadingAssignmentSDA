@@ -73,7 +73,7 @@ class UserInterface:
             self.arm.home()
 
             self.machine.add_transition("self.belt.get_position", "Picking Item", "Getting Conveyor Position")
-            self.belt.get_position([182,249])
+            self.belt.get_position([293.25,-139.46, 0])
             self.arm.get_position(self.belt.position)
 
             self.machine.add_transition("self.arm.go_to_position", "Getting Conveyor Position", "Moving Arm")
